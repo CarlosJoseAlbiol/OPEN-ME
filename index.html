@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPEN ME!</title>
+
+<!--
+  HOW TO USE THIS FILE
+  =====================
+  1. Record your voicemail message on your phone, save it as an audio file.
+  2. Rename that file to exactly:  voicemail.mp3
+  3. Put voicemail.mp3 in the SAME FOLDER as this index.html file.
+  4. If your recording is a different format (.m4a, .wav, .ogg) that's fine too —
+     just change the <source> tags near the bottom of this file (search for
+     "AUDIO SOURCES") to point at your actual filename.
+  5. Optional background music: add a file named bgmusic.mp3 (or .m4a/.ogg)
+     in the same folder. It starts softly once the card opens, ducks out
+     automatically while the voicemail plays, and picks back up right
+     after. If you don't add this file, the card just skips it — nothing
+     breaks.
+     A NOTE ON THIS: don't put a copyrighted song's actual audio file in a
+     public GitHub repo — that's redistributing it, which isn't allowed
+     even for something this personal. Either use a track you have rights
+     to and keep the repo/Pages link private, or use something royalty-free
+     (YouTube Audio Library, Pixabay Music, etc.) if you want it public.
+  6. Edit HER_NAME below if the spelling isn't what you want.
+  7. Push this whole folder to a GitHub repo, turn on GitHub Pages
+     (Settings -> Pages -> Deploy from branch -> main -> / root), and the
+     link it gives you is the card, ready to send.
+-->
+
+<style>
+  :root{
+    --midnight:#0A0E27;
+    --deep:#161F5C;
+    --indigo:#3A4FCB;
+    --periwinkle:#8FA0FF;
+    --ice:#E7ECFF;
+    --gold:#F2C879;
+    --line: rgba(231,236,255,0.16);
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    height:100%;
+    margin:0;
+    background:
+      radial-gradient(ellipse at 50% 0%, var(--deep) 0%, var(--midnight) 60%);
+    overflow:hidden;
+    font-family:'Inter', sans-serif;
+  }
+
+  .scene{
+    position:relative;
+    height:100%;
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* ambient drifting dust / stars */
+  .stars{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+  .stars span{
+    position:absolute;
+    width:2px; height:2px;
+    background:var(--periwinkle);
+    border-radius:50%;
+    opacity:0.35;
+    animation: drift 14s linear infinite;
+  }
+  @keyframes drift{
+    from{ transform:translateY(0); opacity:0; }
+    10%{ opacity:.5; }
+    90%{ opacity:.5; }
+    to{ transform:translateY(-120px); opacity:0; }
+  }
+
+  /* ---------- STAGE ---------- */
+  .stage{
+    position:relative;
+    width:min(92vw, 420px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+  }
+
+  .hint{
+    color:var(--periwinkle);
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    opacity:.75;
+    transition:opacity .5s ease;
+  }
+  .stage.opened .hint{ opacity:0; height:0; }
+
+  /* ---------- ENVELOPE ---------- */
+  .envelope-wrap{
+    position:relative;
+    width:min(88vw, 340px);
+    aspect-ratio: 340 / 220;
+    cursor:pointer;
+    perspective: 1200px;
+  }
+
+  .envelope-body{
+    position:absolute;
+    inset:0;
+    background: linear-gradient(160deg, var(--indigo), #29357f 75%);
+    border-radius:10px;
+    box-shadow: 0 25px 60px -20px rgba(20,25,90,0.7);
+    overflow:hidden;
+  }
+  .envelope-body::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      linear-gradient(135deg, transparent 49.3%, rgba(0,0,0,.18) 50%, transparent 50.7%),
+      linear-gradient(45deg, transparent 49.3%, rgba(0,0,0,.18) 50%, transparent 50.7%);
+  }
+
+  .seal{
+    position:absolute;
+    top:50%; left:50%;
+    width:54px; height:54px;
+    transform:translate(-50%,-50%);
+    background: radial-gradient(circle at 35% 30%, #ffe2a8, var(--gold) 60%, #c98f3a 100%);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 14px rgba(0,0,0,.35);
+    z-index:5;
+    transition: transform .4s ease, opacity .4s ease;
+  }
+  .seal svg{ width:26px; height:26px; }
+
+  .flap{
+    position:absolute;
+    top:0; left:0; width:100%; height:58%;
+    background: linear-gradient(200deg, #4358df, var(--indigo) 80%);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform 1s cubic-bezier(.6,0,.3,1);
+    z-index:4;
+    box-shadow: 0 4px 10px rgba(0,0,0,.25);
+  }
+
+  .stage.opened .flap{ transform: rotateX(178deg); }
+  .stage.opened .seal{ opacity:0; transform:translate(-50%,-50%) scale(0.4); }
+
+  /* ---------- CARD (revealed panel) ---------- */
+  .card{
+    position:relative;
+    margin-top:14px;
+    width:100%;
+    max-width:340px;
+    background: linear-gradient(180deg, #F4F6FF, #E1E7FF);
+    border-radius:14px;
+    padding:30px 26px 26px;
+    text-align:center;
+    box-shadow: 0 30px 70px -25px rgba(10,14,50,.6);
+    opacity:0;
+    transform: translateY(24px) scale(.96);
+    transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1);
+    pointer-events:none;
+  }
+  .stage.opened .card{
+    opacity:1;
+    transform: translateY(0) scale(1);
+    pointer-events:auto;
+    transition-delay: .9s;
+  }
+
+  .eyebrow{
+    margin:0 0 4px;
+    color:var(--indigo);
+    font-size:12px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    font-weight:600;
+  }
+  .title{
+    margin:0 0 6px;
+    font-family: 'Cormorant Garamond', 'Georgia', serif;
+    font-style:italic;
+    font-weight:600;
+    font-size:34px;
+    color:#1B2461;
+    line-height:1.05;
+  }
+  .subtitle{
+    margin:0 0 10px;
+    font-family: 'Cormorant Garamond', 'Georgia', serif;
+    font-size:17px;
+    color:#4A55A0;
+  }
+
+  /* ---------- LILY ---------- */
+  .lily-holder{
+    width:190px;
+    height:190px;
+    margin:6px auto 4px;
+  }
+  .lily-holder svg{ width:100%; height:100%; overflow:visible; }
+
+  .petal-inner{
+    transform: scale(0.26);
+    opacity:.5;
+    transition: transform 1.3s cubic-bezier(.34,1.15,.4,1), opacity 1s ease;
+  }
+  .stage.opened .petal-inner{ opacity:1; transform: scale(1); }
+  .stage.opened .petal-group:nth-child(1) .petal-inner{ transition-delay: 1.1s; }
+  .stage.opened .petal-group:nth-child(2) .petal-inner{ transition-delay: 1.22s; }
+  .stage.opened .petal-group:nth-child(3) .petal-inner{ transition-delay: 1.34s; }
+  .stage.opened .petal-group:nth-child(4) .petal-inner{ transition-delay: 1.46s; }
+  .stage.opened .petal-group:nth-child(5) .petal-inner{ transition-delay: 1.58s; }
+  .stage.opened .petal-group:nth-child(6) .petal-inner{ transition-delay: 1.7s; }
+
+  .stamen{
+    opacity:0;
+    transform: scale(.3);
+    transition: opacity .8s ease, transform .8s cubic-bezier(.3,1.3,.4,1);
+  }
+  .stage.opened .stamen{
+    opacity:1;
+    transform: scale(1);
+    transition-delay: 1.9s;
+  }
+
+  /* ---------- ALIEN MASCOT ---------- */
+  .alien{
+    position:absolute;
+    width:54px; height:54px;
+    right:-14px;
+    bottom:-14px;
+    z-index:6;
+    transform: rotate(0deg) scale(0);
+    transition: transform .7s cubic-bezier(.3,1.6,.4,1);
+    filter: drop-shadow(0 6px 10px rgba(10,14,50,.35));
+  }
+  .stage.opened .alien{
+    transform: rotate(-8deg) scale(1);
+    transition-delay: 2.3s;
+  }
+  .alien svg{ width:100%; height:100%; }
+  .alien .arm{
+    transform-origin: 70% 60%;
+    animation: wave 1.6s ease-in-out infinite;
+    animation-play-state: paused;
+  }
+  .stage.opened .alien .arm{ animation-play-state: running; animation-delay: 2.6s; }
+  @keyframes wave{
+    0%,100%{ transform: rotate(0deg); }
+    50%{ transform: rotate(-22deg); }
+  }
+
+  /* Speech bubble sits above-and-right, tail pointing down toward the
+     alien's head on the right edge, clear of both the card edge and the
+     voicemail bar beneath it. */
+  .speech-bubble{
+    position:absolute;
+    right:-38px;
+    bottom:58px;
+    z-index:6;
+    background:#fff;
+    color:#1B2461;
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:600;
+    line-height:1.3;
+    padding:8px 11px;
+    border-radius:12px 12px 2px 12px;
+    white-space:nowrap;
+    box-shadow: 0 8px 18px -6px rgba(10,14,50,.4);
+    opacity:0;
+    transform: translateY(6px) scale(.9);
+    transform-origin: bottom right;
+    transition: opacity .5s ease, transform .5s cubic-bezier(.3,1.4,.4,1);
+  }
+  .stage.opened .speech-bubble{
+    opacity:1;
+    transform: translateY(0) scale(1);
+    transition-delay: 2.9s;
+  }
+
+  /* ---------- VOICEMAIL ---------- */
+  .voicemail{
+    margin-top:14px;
+    padding-top:16px;
+    border-top:1px solid rgba(27,36,97,.15);
+    opacity:0;
+    transform:translateY(8px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .stage.opened .voicemail{
+    opacity:1;
+    transform:translateY(0);
+    transition-delay: 2.1s;
+  }
+
+  .vm-caption{
+    font-family:'Cormorant Garamond','Georgia',serif;
+    font-style:italic;
+    color:#4A55A0;
+    font-size:15px;
+    margin:0 0 12px;
+    line-height:1.4;
+  }
+
+  .vm-controls{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background: #1B2461;
+    padding:10px 16px;
+    border-radius:999px;
+    justify-content:center;
+  }
+
+  .play-btn{
+    width:38px; height:38px;
+    border-radius:50%;
+    background: var(--gold);
+    border:none;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition: transform .2s ease;
+  }
+  .play-btn:hover{ transform:scale(1.06); }
+  .play-btn:active{ transform:scale(.94); }
+  .play-btn svg{ width:15px; height:15px; }
+
+  .bars{
+    display:flex;
+    align-items:center;
+    gap:3px;
+    height:20px;
+    flex:1;
+  }
+  .bars span{
+    width:3px;
+    background: var(--periwinkle);
+    border-radius:2px;
+    height:20%;
+    transition: height .15s ease;
+  }
+  .vm-controls.playing .bars span{
+    animation: bounce 900ms ease-in-out infinite;
+  }
+  .bars span:nth-child(1){ animation-delay: 0ms; }
+  .bars span:nth-child(2){ animation-delay: 90ms; }
+  .bars span:nth-child(3){ animation-delay: 180ms; }
+  .bars span:nth-child(4){ animation-delay: 270ms; }
+  .bars span:nth-child(5){ animation-delay: 360ms; }
+  .bars span:nth-child(6){ animation-delay: 450ms; }
+  .bars span:nth-child(7){ animation-delay: 540ms; }
+  @keyframes bounce{
+    0%,100%{ height:20%; }
+    50%{ height:100%; }
+  }
+
+  .vm-time{
+    color:var(--ice);
+    font-size:11px;
+    letter-spacing:.04em;
+    min-width:34px;
+    text-align:right;
+  }
+
+  .missing-audio{
+    display:none;
+    color:#b23b3b;
+    font-size:12px;
+    margin-top:10px;
+    line-height:1.4;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .flap, .card, .petal-inner, .stamen, .voicemail{
+      transition-duration: .01ms !important;
+      transition-delay: 0s !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="scene">
+
+  <div class="stars" id="stars"></div>
+
+  <div class="stage" id="stage">
+
+    <div class="envelope-wrap" id="envelope">
+      <div class="envelope-body">
+        <div class="flap"></div>
+        <div class="seal">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 21s-7.5-4.6-9.8-9.1C.6 8.6 2 5 5.5 5c2 0 3.4 1.1 4.1 2.3.4-.7.6-1 1-1.5C11.3 4.6 12.4 4 14 4c3.2 0 5.5 2.5 5.5 5.6C19.5 15 12 21 12 21z" fill="#1B2461" opacity="0"/>
+            <path d="M12 6l1.2 2.5 2.7.4-2 1.9.5 2.7L12 12.2l-2.4 1.3.5-2.7-2-1.9 2.7-.4L12 6z" fill="#1B2461"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+      <div class="card" id="card">
+        <p class="eyebrow">08 · 20</p>
+        <h1 class="title">Advanced Happy Birthday!</h1>
+        <p class="subtitle" id="nameLine">Myles C. Grefiel</p>
+
+        <div class="lily-holder">
+          <svg viewBox="0 0 200 200">
+            <g class="petal-group" transform="translate(100 100) rotate(0)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(60)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(120)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(180)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(240)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(300)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+
+            <g transform="translate(100 100)">
+              <g class="stamen">
+                <line x1="0" y1="0" x2="-12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="0" y2="-34" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="-6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
+                <ellipse cx="-12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="0" cy="-34" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="-6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
+                <ellipse cx="6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
+                <circle cx="0" cy="0" r="3" fill="#7C5A22"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <!-- original blue alien mascot (not Stitch — his own little guy) -->
+        <div class="speech-bubble">hi, im stitch! happy birthday! 💙</div>
+        <div class="alien">
+          <svg viewBox="0 0 100 100">
+            <ellipse cx="50" cy="58" rx="30" ry="28" fill="#4A5FE0"/>
+            <path d="M22,40 C10,24 16,4 28,10 C30,20 30,32 30,32 Z" fill="#4A5FE0"/>
+            <path d="M78,40 C90,24 84,4 72,10 C70,20 70,32 70,32 Z" fill="#4A5FE0"/>
+            <path d="M22,40 C13,27 17,10 27,14 C28,22 29,32 29,32 Z" fill="#8296FF"/>
+            <path d="M78,40 C87,27 83,10 73,14 C72,22 71,32 71,32 Z" fill="#8296FF"/>
+            <ellipse class="arm" cx="76" cy="66" rx="7" ry="16" fill="#4A5FE0" transform="rotate(20 76 66)"/>
+            <ellipse cx="24" cy="66" rx="7" ry="16" fill="#4A5FE0" transform="rotate(-16 24 66)"/>
+            <circle cx="39" cy="52" r="7.5" fill="#0A0E27"/>
+            <circle cx="61" cy="52" r="7.5" fill="#0A0E27"/>
+            <circle cx="41.5" cy="49.5" r="2.2" fill="#fff"/>
+            <circle cx="63.5" cy="49.5" r="2.2" fill="#fff"/>
+            <path d="M40,68 Q50,76 60,68" stroke="#0A0E27" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <path d="M28,50 L20,46 M28,54 L18,54 M72,50 L80,46 M72,54 L82,54" stroke="#0A0E27" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="voicemail">
+          <p class="vm-caption">Happiest Birthday to the purest and kindest girl I know!</p>
+          <div class="vm-controls" id="vmControls">
+            <button class="play-btn" id="playBtn" aria-label="Play voicemail">
+              <svg id="playIcon" viewBox="0 0 24 24" fill="#1B2461"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="pauseIcon" viewBox="0 0 24 24" fill="#1B2461" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+            </button>
+            <div class="bars">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <span class="vm-time" id="vmTime">0:00</span>
+          </div>
+          <p class="missing-audio" id="missingAudio">
+            Couldn't find voicemail.mp3 — add your recording next to this file (see the comment at the top of the HTML).
+          </p>
+          <audio id="audio" preload="auto">
+            <source src="voicemail.mp3" type="audio/mpeg">
+            <source src="voicemail.m4a" type="audio/mp4">
+            <source src="voicemail.ogg" type="audio/ogg">
+          </audio>
+        </div>
+      </div>
+
+    <!-- Optional background music. Missing file = silently skipped, nothing breaks. -->
+    <audio id="bgMusic" preload="auto" loop>
+      <source src="bgmusic.mp3" type="audio/mpeg">
+      <source src="bgmusic.m4a" type="audio/mp4">
+      <source src="bgmusic.ogg" type="audio/ogg">
+    </audio>
+
+    <p class="hint">tap the envelope</p>
+  </div>
+</div>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  // ---- EDIT HERE ----
+  const HER_NAME = "Myles C. Grefiel"; // change spelling if needed, or set to "" to hide the line
+  document.getElementById('nameLine').textContent = HER_NAME ? `${HER_NAME}` : '';
+
+  const starsHolder = document.getElementById('stars');
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('span');
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.animationDuration = (10 + Math.random() * 10) + 's';
+    s.style.animationDelay = (Math.random() * 10) + 's';
+    starsHolder.appendChild(s);
+  }
+
+  const stage = document.getElementById('stage');
+  const envelope = document.getElementById('envelope');
+  const bgMusic = document.getElementById('bgMusic');
+  const BG_VOLUME = 0.35; // normal resting volume for the background track
+
+  // Smoothly ramps an <audio> element's volume from where it is now to
+  // `toVolume` over `duration` ms. Calls `onComplete` once the ramp
+  // finishes (used to actually pause the element after fading to 0, so it
+  // doesn't keep playing silently underneath).
+  function fadeVolume(audioEl, toVolume, duration, onComplete){
+    const fromVolume = audioEl.volume;
+    const startTime = performance.now();
+    function step(now){
+      const t = Math.min((now - startTime) / duration, 1);
+      audioEl.volume = fromVolume + (toVolume - fromVolume) * t;
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else if (onComplete) {
+        onComplete();
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  envelope.addEventListener('click', () => {
+    if (stage.classList.contains('opened')) return;
+    stage.classList.add('opened');
+    // Same click = a user gesture, so autoplay restrictions allow this.
+    // If bgmusic.mp3 isn't there, this just fails quietly — nothing shown,
+    // nothing broken, per the "optional" behavior described up top.
+    bgMusic.volume = 0;
+    bgMusic.play().then(() => fadeVolume(bgMusic, BG_VOLUME, 900)).catch(() => {});
+  });
+
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  const pauseIcon = document.getElementById('pauseIcon');
+  const vmControls = document.getElementById('vmControls');
+  const vmTime = document.getElementById('vmTime');
+  const missingAudio = document.getElementById('missingAudio');
+
+  function formatTime(sec){
+    if (!isFinite(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play().catch(() => {
+        missingAudio.style.display = 'block';
+      });
+    } else {
+      audio.pause();
+    }
+  });
+
+  audio.addEventListener('play', () => {
+    playIcon.style.display = 'none';
+    pauseIcon.style.display = 'block';
+    vmControls.classList.add('playing');
+    bgMusic.pause(); // duck out while the voicemail plays
+  });
+  audio.addEventListener('pause', () => {
+    playIcon.style.display = 'block';
+    pauseIcon.style.display = 'none';
+    vmControls.classList.remove('playing');
+    bgMusic.play().catch(() => {}); // pick back up — covers manual pause too
+  });
+  audio.addEventListener('ended', () => {
+    audio.currentTime = 0;
+    bgMusic.play().catch(() => {}); // resume after the message finishes
+  });
+  audio.addEventListener('timeupdate', () => {
+    const remaining = (audio.duration || 0) - audio.currentTime;
+    vmTime.textContent = formatTime(audio.paused ? audio.duration || 0 : remaining);
+  });
+  audio.addEventListener('error', () => {
+    missingAudio.style.display = 'block';
+  });
+  audio.addEventListener('loadedmetadata', () => {
+    vmTime.textContent = formatTime(audio.duration);
+  });
+</script>
+
+</body>
+</html>
