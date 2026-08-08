@@ -108,16 +108,41 @@
     100% { transform: translate3d(var(--drift,0px), 112vh, 0) rotate(var(--spin,420deg)); opacity:.3; }
   }
 
-  /* ---------- ENVELOPE "WAKE" ACKNOWLEDGEMENT ----------
-     The very first tap on the envelope starts the music (see JS) and the
-     envelope gives this small confirming pulse so it's obvious *something*
-     just happened, since nothing opens yet on that first tap. */
-  @keyframes wake{
-    0%{ transform:scale(1); }
-    35%{ transform:scale(1.045); }
-    100%{ transform:scale(1); }
+  /* ---------- START OVERLAY ----------
+     iOS Safari and Android Chrome both refuse to play audio with sound
+     until a real tap/click has happened on the page — that's a platform
+     rule, not something any code can route around. This overlay's tap IS
+     that gesture: it starts the background music and then gets out of the
+     way, before the envelope itself is ever touched. */
+  .start-overlay{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: radial-gradient(ellipse at 50% 0%, var(--deep) 0%, var(--midnight) 60%);
+    cursor:pointer;
+    touch-action: manipulation;
+    transition: opacity .6s ease;
   }
-  .envelope-wrap.woke{ animation: wake .45s ease; }
+  .start-overlay.hidden{
+    opacity:0;
+    pointer-events:none;
+  }
+  .start-text{
+    font-family:'Cormorant Garamond','Georgia',serif;
+    font-style:italic;
+    color:var(--ice);
+    font-size:clamp(20px, 5vw, 28px);
+    letter-spacing:.04em;
+    text-align:center;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:.65; }
+    50%{ opacity:1; }
+  }
 
   /* ---------- STAGE ---------- */
   .scene{
@@ -384,6 +409,10 @@
 
 <div class="petals-layer" id="petalsLayer"></div>
 
+<div class="start-overlay" id="startOverlay">
+  <p class="start-text">tap to begin ✧</p>
+</div>
+
 <div class="scene">
   <div class="stage" id="stage">
 
@@ -601,31 +630,24 @@
     }, stepMs);
   }
 
-  // ---------- envelope: tap 1 wakes the music, tap 2+ opens/closes ----------
+  // ---------- start overlay: the one required tap that unlocks audio ----------
   // iOS Safari and Android Chrome both refuse to play audio with sound
-  // until a real tap/click has happened on the page — that's a platform
-  // rule, not something any code can route around. Rather than a separate
-  // "tap to begin" gate screen, the envelope's own first tap IS that
-  // gesture: music starts, envelope gives a small pulse to confirm the tap
-  // landed, and it stays closed. The next tap actually opens it — so the
-  // music is already playing by the time she opens it, not something that
-  // only starts once she closes it again.
+  // until a real tap/click has happened on the page. This overlay's tap
+  // IS that gesture, and it's kept separate from opening the envelope so
+  // the music genuinely plays first, while the card is still closed.
+  const startOverlay = document.getElementById('startOverlay');
+  startOverlay.addEventListener('click', () => {
+    startOverlay.classList.add('hidden');
+    bgMusic.volume = 0;
+    bgMusic.play().then(() => fadeVolume(bgMusic, BG_VOLUME, 900)).catch(() => {});
+  }, { once: true });
+
+  // ---------- envelope: tap to open, tap again to close ----------
   const stage = document.getElementById('stage');
   const envelope = document.getElementById('envelope');
   const hint = document.getElementById('hint');
-  let awakened = false;
 
   envelope.addEventListener('click', () => {
-    if (!awakened) {
-      awakened = true;
-      bgMusic.volume = 0;
-      bgMusic.play().then(() => fadeVolume(bgMusic, BG_VOLUME, 900)).catch(() => {});
-      envelope.classList.add('woke');
-      setTimeout(() => envelope.classList.remove('woke'), 450);
-      hint.textContent = 'tap again to open';
-      return;
-    }
-
     const isOpening = !stage.classList.contains('opened');
     stage.classList.toggle('opened');
 
