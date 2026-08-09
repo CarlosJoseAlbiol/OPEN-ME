@@ -11,15 +11,16 @@
   =====================
   1. Optional background music: add a file named bgmusic.mp3 (or .m4a/.ogg)
      in the SAME FOLDER as this index.html file. It plays softly once you
-     tap in, stops the moment the envelope opens, and picks back up if you
-     close it again. No file = it's just silently skipped, nothing breaks.
+     tap in, and just keeps playing continuously — opening or closing the
+     envelope doesn't affect it. No file = it's just silently skipped,
+     nothing breaks.
      A NOTE ON THIS: don't put a copyrighted song's actual audio file in a
      public GitHub repo — that's redistributing it, which isn't allowed
      even for something this personal. Either use a track you have rights
      to and keep the repo/Pages link private, or use something royalty-free
      (YouTube Audio Library, Pixabay Music, etc.) if you want it public.
   2. Edit HER_NAME near the bottom of this file if the spelling isn't right.
-  3. Edit the letter text itself further down (search for LETTER TEXT) if
+  3. Edit the surprise message text further down (search for bouquet-message) if
      you want to change a word here or there.
   4. Push this whole folder to a GitHub repo, turn on GitHub Pages
      (Settings -> Pages -> Deploy from branch -> main -> / root), and the
@@ -849,14 +850,12 @@
     if (isOpening) {
       hint.textContent = 'tap the envelope to close';
       startPetals();
-      // duck the music out, then actually pause once silent
-      fadeVolume(bgMusic, 0, 600, () => bgMusic.pause());
     } else {
       hint.textContent = 'tap the envelope to open';
       stopPetals();
-      // bring the music back, from wherever it currently is
-      bgMusic.play().then(() => fadeVolume(bgMusic, BG_VOLUME, 700)).catch(() => {});
     }
+    // music is intentionally left alone here — it plays continuously
+    // once started, regardless of whether the envelope is open or closed
   });
 </script>
 
