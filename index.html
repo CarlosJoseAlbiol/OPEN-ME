@@ -275,13 +275,26 @@
     color:#4A55A0;
   }
 
-  /* ---------- LILY ---------- */
+  /* ---------- LILY BOUQUET ---------- */
   .lily-holder{
-    width:190px;
-    height:190px;
+    width:210px;
+    height:240px;
     margin:6px auto 4px;
   }
   .lily-holder svg{ width:100%; height:100%; overflow:visible; }
+
+  /* stems + bow grow upward from the base before any flower blooms */
+  .stems{
+    transform-origin: 50% 100%;
+    transform: scaleY(0);
+    opacity:0;
+    transition: transform .9s cubic-bezier(.3,1,.4,1), opacity .5s ease;
+  }
+  .stage.opened .stems{
+    transform: scaleY(1);
+    opacity:1;
+    transition-delay: .9s;
+  }
 
   .petal-inner{
     transform: scale(0.26);
@@ -289,54 +302,64 @@
     transition: transform 1.3s cubic-bezier(.34,1.15,.4,1), opacity 1s ease;
   }
   .stage.opened .petal-inner{ opacity:1; transform: scale(1); }
-  .stage.opened .petal-group:nth-child(1) .petal-inner{ transition-delay: 1.1s; }
-  .stage.opened .petal-group:nth-child(2) .petal-inner{ transition-delay: 1.22s; }
-  .stage.opened .petal-group:nth-child(3) .petal-inner{ transition-delay: 1.34s; }
-  .stage.opened .petal-group:nth-child(4) .petal-inner{ transition-delay: 1.46s; }
-  .stage.opened .petal-group:nth-child(5) .petal-inner{ transition-delay: 1.58s; }
-  .stage.opened .petal-group:nth-child(6) .petal-inner{ transition-delay: 1.7s; }
+
+  /* each of the 3 flowers blooms in its own staggered run, main flower
+     first, then left, then right, so the bouquet opens in a sequence
+     rather than all six-times-three petals popping at once */
+  .stage.opened .flower-main .petal-group:nth-child(1) .petal-inner{ transition-delay: 1.15s; }
+  .stage.opened .flower-main .petal-group:nth-child(2) .petal-inner{ transition-delay: 1.27s; }
+  .stage.opened .flower-main .petal-group:nth-child(3) .petal-inner{ transition-delay: 1.39s; }
+  .stage.opened .flower-main .petal-group:nth-child(4) .petal-inner{ transition-delay: 1.51s; }
+  .stage.opened .flower-main .petal-group:nth-child(5) .petal-inner{ transition-delay: 1.63s; }
+  .stage.opened .flower-main .petal-group:nth-child(6) .petal-inner{ transition-delay: 1.75s; }
+
+  .stage.opened .flower-left .petal-group:nth-child(1) .petal-inner{ transition-delay: 1.45s; }
+  .stage.opened .flower-left .petal-group:nth-child(2) .petal-inner{ transition-delay: 1.57s; }
+  .stage.opened .flower-left .petal-group:nth-child(3) .petal-inner{ transition-delay: 1.69s; }
+  .stage.opened .flower-left .petal-group:nth-child(4) .petal-inner{ transition-delay: 1.81s; }
+  .stage.opened .flower-left .petal-group:nth-child(5) .petal-inner{ transition-delay: 1.93s; }
+  .stage.opened .flower-left .petal-group:nth-child(6) .petal-inner{ transition-delay: 2.05s; }
+
+  .stage.opened .flower-right .petal-group:nth-child(1) .petal-inner{ transition-delay: 1.75s; }
+  .stage.opened .flower-right .petal-group:nth-child(2) .petal-inner{ transition-delay: 1.87s; }
+  .stage.opened .flower-right .petal-group:nth-child(3) .petal-inner{ transition-delay: 1.99s; }
+  .stage.opened .flower-right .petal-group:nth-child(4) .petal-inner{ transition-delay: 2.11s; }
+  .stage.opened .flower-right .petal-group:nth-child(5) .petal-inner{ transition-delay: 2.23s; }
+  .stage.opened .flower-right .petal-group:nth-child(6) .petal-inner{ transition-delay: 2.35s; }
 
   .stamen{
     opacity:0;
     transform: scale(.3);
     transition: opacity .8s ease, transform .8s cubic-bezier(.3,1.3,.4,1);
   }
-  .stage.opened .stamen{
-    opacity:1;
-    transform: scale(1);
-    transition-delay: 1.9s;
-  }
+  .stage.opened .stamen{ opacity:1; transform: scale(1); }
+  .stage.opened .flower-main .stamen{ transition-delay: 1.95s; }
+  .stage.opened .flower-left .stamen{ transition-delay: 2.25s; }
+  .stage.opened .flower-right .stamen{ transition-delay: 2.55s; }
 
-  /* ---------- LETTER TEXT ---------- */
-  .letter-text{
-    margin-top:16px;
-    padding-top:16px;
+  /* ---------- SURPRISE MESSAGE ---------- */
+  .bouquet-message{
+    margin-top:18px;
+    padding-top:18px;
     border-top:1px solid rgba(27,36,97,.15);
-    text-align:left;
+    text-align:center;
     opacity:0;
     transform:translateY(8px);
     transition: opacity .9s ease, transform .9s ease;
   }
-  .stage.opened .letter-text{
+  .stage.opened .bouquet-message{
     opacity:1;
     transform:translateY(0);
-    transition-delay: 2.1s;
+    transition-delay: 3.7s;
   }
-  .letter-text p{
-    font-family:'Cormorant Garamond','Georgia',serif;
-    font-size:16px;
-    line-height:1.75;
-    color:#33397A;
-    margin:0 0 16px;
-  }
-  .letter-text p:last-child{ margin-bottom:0; }
-  .letter-sign{
-    margin-top:18px;
+  .bouquet-message p{
     font-family:'Cormorant Garamond','Georgia',serif;
     font-style:italic;
-    font-size:16px;
+    font-weight:600;
+    font-size:19px;
+    line-height:1.5;
     color:#1B2461;
-    text-align:right;
+    margin:0;
   }
 
   /* ---------- ALIEN MASCOT ---------- */
@@ -352,7 +375,7 @@
   }
   .stage.opened .alien{
     transform: rotate(-8deg) scale(1);
-    transition-delay: 2.6s;
+    transition-delay: 4.0s;
   }
   .alien svg{ width:100%; height:100%; }
   .alien .arm{
@@ -360,7 +383,7 @@
     animation: wave 1.6s ease-in-out infinite;
     animation-play-state: paused;
   }
-  .stage.opened .alien .arm{ animation-play-state: running; animation-delay: 2.9s; }
+  .stage.opened .alien .arm{ animation-play-state: running; animation-delay: 4.3s; }
   @keyframes wave{
     0%,100%{ transform: rotate(0deg); }
     50%{ transform: rotate(-22deg); }
@@ -389,11 +412,11 @@
   .stage.opened .speech-bubble{
     opacity:1;
     transform: translateY(0) scale(1);
-    transition-delay: 3.2s;
+    transition-delay: 4.3s;
   }
 
   @media (prefers-reduced-motion: reduce){
-    .flap, .card, .petal-inner, .stamen, .letter-text, .start-overlay{
+    .flap, .card, .petal-inner, .stamen, .stems, .bouquet-message, .start-overlay{
       transition-duration: .01ms !important;
       transition-delay: 0s !important;
     }
@@ -433,68 +456,240 @@
       <p class="subtitle" id="nameLine">Myles C. Grefiel</p>
 
       <div class="lily-holder">
-        <svg viewBox="0 0 200 200">
-          <g class="petal-group" transform="translate(100 100) rotate(0)">
-            <g class="petal-inner">
-              <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
-              <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
-            </g>
-          </g>
-          <g class="petal-group" transform="translate(100 100) rotate(60)">
-            <g class="petal-inner">
-              <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
-              <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
-            </g>
-          </g>
-          <g class="petal-group" transform="translate(100 100) rotate(120)">
-            <g class="petal-inner">
-              <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
-              <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
-            </g>
-          </g>
-          <g class="petal-group" transform="translate(100 100) rotate(180)">
-            <g class="petal-inner">
-              <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
-              <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
-            </g>
-          </g>
-          <g class="petal-group" transform="translate(100 100) rotate(240)">
-            <g class="petal-inner">
-              <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
-              <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
-            </g>
-          </g>
-          <g class="petal-group" transform="translate(100 100) rotate(300)">
-            <g class="petal-inner">
-              <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
-              <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+        <svg viewBox="0 0 260 300">
+          <defs>
+            <linearGradient id="wrapGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FDF2F5"/>
+              <stop offset="100%" stop-color="#F2C6D3"/>
+            </linearGradient>
+          </defs>
+
+          <!--
+            A wrapped paper bouquet, not bare stems: pointed paper folds
+            tucked behind the flowers, a paper cone around the stems, and a
+            ribbon tied at the neck — the whole group still grows up from
+            the base together (see .stems in the CSS).
+          -->
+          <g class="stems">
+            <!-- back paper folds, peeking up behind/between the flower heads -->
+            <path d="M50,175 Q42,115 64,66 Q82,106 76,166 Z" fill="#F6D3DF"/>
+            <path d="M210,175 Q218,115 196,66 Q178,106 184,166 Z" fill="#F6D3DF"/>
+            <path d="M108,160 Q98,114 116,72 Q132,108 124,154 Z" fill="#FAE3EB"/>
+            <path d="M152,160 Q162,114 144,72 Q128,108 136,154 Z" fill="#FAE3EB"/>
+
+            <!-- short stem stubs — mostly swallowed by the wrap below -->
+            <path d="M130,250 C150,222 170,202 185,175" stroke="#3F6B45" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M130,250 C130,215 130,170 130,120" stroke="#3F6B45" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M130,250 C110,222 90,202 75,175" stroke="#3F6B45" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+            <!-- tucked greenery -->
+            <path d="M116,194 C103,189 96,179 98,169 C110,172 118,182 116,194 Z" fill="#4F7A4A"/>
+            <path d="M144,194 C157,189 164,179 162,169 C150,172 142,182 144,194 Z" fill="#4F7A4A"/>
+
+            <!-- the paper cone: scalloped top edge where flowers emerge,
+                 tapering down to a narrow neck at the ribbon -->
+            <path d="M52,178
+                     C50,196 62,206 84,210
+                     C102,213 112,203 130,207
+                     C148,203 158,213 176,210
+                     C198,206 210,196 208,178
+                     C204,212 178,246 152,263
+                     L130,273 L108,263
+                     C82,246 56,212 52,178 Z"
+                  fill="url(#wrapGrad)" stroke="#E9AFC2" stroke-width="1"/>
+
+            <!-- crease lines for a folded-paper look -->
+            <path d="M68,196 C74,222 92,244 116,256" stroke="#E9AFC2" stroke-width="1" fill="none" opacity=".6"/>
+            <path d="M192,196 C186,222 168,244 144,256" stroke="#E9AFC2" stroke-width="1" fill="none" opacity=".6"/>
+
+            <!-- front paper accents, layered slightly in front of the cone's top edge -->
+            <path d="M87,184 Q82,152 94,124 Q106,152 102,180 Z" fill="#FDF2F5" opacity=".95"/>
+            <path d="M173,184 Q178,152 166,124 Q154,152 158,180 Z" fill="#FDF2F5" opacity=".95"/>
+
+            <!-- trailing ribbon tails, hanging past the wrap's bottom point -->
+            <path d="M118,258 C112,272 104,284 92,294 L104,291 C114,280 118,268 124,257 Z" fill="#F4F6FF" stroke="#E4C68A" stroke-width=".6"/>
+            <path d="M142,258 C148,272 156,284 168,294 L156,291 C146,280 142,268 136,257 Z" fill="#F4F6FF" stroke="#E4C68A" stroke-width=".6"/>
+
+            <!-- ribbon band around the neck -->
+            <path d="M92,240 Q130,260 168,240 L168,251 Q130,271 92,251 Z" fill="#FBFBFF" stroke="#E4C68A" stroke-width="1"/>
+
+            <!-- bow knot -->
+            <g transform="translate(130,246)">
+              <path d="M0,0 C-16,-9 -23,4 -9,9 C-18,16 -11,25 0,16 Z" fill="#F2C879"/>
+              <path d="M0,0 C16,-9 23,4 9,9 C18,16 11,25 0,16 Z" fill="#F2C879"/>
+              <circle cx="0" cy="2" r="4.5" fill="#C98F3A"/>
             </g>
           </g>
 
-          <g transform="translate(100 100)">
-            <g class="stamen">
-              <line x1="0" y1="0" x2="-12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
-              <line x1="0" y1="0" x2="0" y2="-34" stroke="#5B3E1A" stroke-width="1.4"/>
-              <line x1="0" y1="0" x2="12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
-              <line x1="0" y1="0" x2="-6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
-              <line x1="0" y1="0" x2="6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
-              <ellipse cx="-12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
-              <ellipse cx="0" cy="-34" rx="3.4" ry="2" fill="#F2C879"/>
-              <ellipse cx="12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
-              <ellipse cx="-6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
-              <ellipse cx="6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
-              <circle cx="0" cy="0" r="3" fill="#7C5A22"/>
+          <!-- LEFT flower -->
+          <g class="flower flower-left" transform="translate(75,150) rotate(-18) scale(0.46) translate(-100,-100)">
+            <g class="petal-group" transform="translate(100 100) rotate(0)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(60)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(120)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(180)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(240)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(300)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g transform="translate(100 100)">
+              <g class="stamen">
+                <line x1="0" y1="0" x2="-12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="0" y2="-34" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="-6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
+                <ellipse cx="-12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="0" cy="-34" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="-6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
+                <ellipse cx="6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
+                <circle cx="0" cy="0" r="3" fill="#7C5A22"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- MAIN (center, tallest) flower -->
+          <g class="flower flower-main" transform="translate(130,90) rotate(0) scale(0.58) translate(-100,-100)">
+            <g class="petal-group" transform="translate(100 100) rotate(0)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(60)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(120)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(180)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(240)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(300)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g transform="translate(100 100)">
+              <g class="stamen">
+                <line x1="0" y1="0" x2="-12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="0" y2="-34" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="-6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
+                <ellipse cx="-12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="0" cy="-34" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="-6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
+                <ellipse cx="6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
+                <circle cx="0" cy="0" r="3" fill="#7C5A22"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- RIGHT flower -->
+          <g class="flower flower-right" transform="translate(185,150) rotate(18) scale(0.46) translate(-100,-100)">
+            <g class="petal-group" transform="translate(100 100) rotate(0)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(60)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(120)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(180)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(240)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#AEC0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7C8FE0" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g class="petal-group" transform="translate(100 100) rotate(300)">
+              <g class="petal-inner">
+                <path d="M0,0 C-12,-35 -10,-75 0,-92 C10,-75 12,-35 0,0 Z" fill="#9BB0FF"/>
+                <path d="M0,0 C-5,-28 -5,-60 0,-80" stroke="#7086E6" stroke-width="1" fill="none" opacity=".6"/>
+              </g>
+            </g>
+            <g transform="translate(100 100)">
+              <g class="stamen">
+                <line x1="0" y1="0" x2="-12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="0" y2="-34" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="12" y2="-28" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="-6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
+                <line x1="0" y1="0" x2="6" y2="-30" stroke="#5B3E1A" stroke-width="1.4"/>
+                <ellipse cx="-12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="0" cy="-34" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="12" cy="-28" rx="3.4" ry="2" fill="#F2C879"/>
+                <ellipse cx="-6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
+                <ellipse cx="6" cy="-30" rx="3" ry="1.8" fill="#F2C879"/>
+                <circle cx="0" cy="0" r="3" fill="#7C5A22"/>
+              </g>
             </g>
           </g>
         </svg>
       </div>
 
-      <!-- LETTER TEXT — edit the wording inside these <p> tags if you want to change anything -->
-      <div class="letter-text">
-        <p>Hi Myles! I just want to let you know that Happiest Birthday to you and may you live your life to the fullest, to be honest i cant say this to you in person, nahihiya kasi ako sayo, sa kagaguhan na ginawa ko, i want to say sorry sa lahat, alam ko na alam mo na kulang na kulang yung binigay ko sayo na paliwanag noong nag-usap tayo sa sm, kahit na sabihin mo na okay na yun pero sa aking hindi lalo na nung nakita kitang paluha na and it breaks me na nasasaktan ko yung taong gusto ko that time.</p>
-        <p>Sa totoo lang kasi, gulong-gulo ako that time na nagkakaroon na ako sayo nang nararamdaman, natakot ako, pinangunahan ko lahat ng possible na mangyari, dineny ko lahat yung nararamdaman ko Kahit alam ko naman na gusto na rin kita, naging selfish ako that time at dahil doon hindi kita mareplyan dahil sinasabi ng utak ko wag na, Kahit gusto nang puso ko na replyan ka, natakot din kasi ako na baka hindi ko maibigay sayo lahat, nasanay din kasi ako siguro sa past ko na binibigay ko lahat.</p>
-        <p>Maniwala ka man o sa hindi, narerealize ko sa lahat nitong nakalipas na buwan, since nung nag-usap tayo sa noon sa sm, ang tanga ko pala sobra, humihingi ako nang advice kina Aubrey at kurt dahil natatakot ako na mawala ka sa akin, lagi nilang tanong sa akin, "bakit ka ba natatakot kuya?" hindi ko masagot, ika nga nila "kuya carlos, gulong gulong ka pa" kaya ayun, hindi ko magawa na makausap ka, kasi natatakot ako, kasi sabi nila aubrey at kurt kung naguguluhan kapa wag' mo na munang kausapin, hanggang ngayon ko lang narealize na ang dali lang pala nang sagot, at yung sagot na yon ay matagal ko na palang nasagot, takot akong mag "take the risk" tanga lang talaga ako or nagpakamanhid, kaya ayan nadamay ka sa katangahan ko, nakasakit nanaman ako ng tao na mahal ko at alam ko na hindi mo naman dapat deserve kasi alam ko kung paano ka magmahal, at dahil din sa katangahan ko nasira ko yung tiwala mo sa akin, alam ko na hindi mo agad maibabalik yung tiwala na meron satin tulad noong dati, pero kung mapapagbigyan ng pangalawang pagkakataon pinapangako ko na babawi ako sayo, kasi alam ko na ngayon na i am now willing to take that risk at pinapangako ko na mas magiging open ako, im really sorry talaga myles.</p>
-        <p>Wag mong isipin na may kasalanan ka, kasi ako yung may sala, i hope you found this message well, and happy birthday!</p>
+      <div class="bouquet-message">
+        <p>Heads up! You will receive a surprise of on your birthday!</p>
       </div>
 
       <!-- original blue alien mascot (not Stitch — his own little guy) -->
