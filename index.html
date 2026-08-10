@@ -453,7 +453,7 @@
 
     <div class="card" id="card">
       <p class="eyebrow">08 · 20</p>
-      <h1 class="title">A Surprise Gift Card</h1>
+      <h1 class="title">a little surprise</h1>
       <p class="subtitle" id="nameLine">Myles C. Grefiel</p>
 
       <div class="lily-holder">
@@ -690,11 +690,11 @@
       </div>
 
       <div class="bouquet-message">
-        <p>Heads up! You will receive a surprise of on your birthday!</p>
+        <p>Heads up! You will receive a surprise on your birthday!</p>
       </div>
 
       <!-- original blue alien mascot (not Stitch — his own little guy) -->
-      <div class="speech-bubble">hi, im stitch! what could it be?</div>
+      <div class="speech-bubble">hi, im stitch! what could it be?💙</div>
       <div class="alien">
         <svg viewBox="0 0 100 100">
           <ellipse cx="50" cy="58" rx="30" ry="28" fill="#4A5FE0"/>
@@ -731,7 +731,7 @@
 <script>
   // ---- EDIT HERE ----
   const HER_NAME = "Myles C. Grefiel"; // change spelling if needed, or set to "" to hide the line
-  document.getElementById('nameLine').textContent = 'for' HER_NAME || '';
+  document.getElementById('nameLine').textContent = HER_NAME ? 'for ' + HER_NAME : '';
 
   // ---------- ambient dust ----------
   const starsHolder = document.getElementById('stars');
